@@ -1,0 +1,53 @@
+services:
+
+  db:
+    image: postgres:15
+    container_name: db
+    restart: no
+    user: 1000:1000
+    environment:
+      POSTGRES_USER: loja_user
+      POSTGRES_PASSWORD: loja_pass
+      POSTGRES_DB: loja_db
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - loja
+
+  frontend:
+    container_name: graciosa-frontend
+    build:
+      context: ./frontend
+    restart: no
+    user: 1000:1000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev -- --host"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - loja
+
+  backend:
+    container_name: graciosa-backend
+    build:
+      context: ./backend
+    restart: no
+    user: 1000:1000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+    command: sh -c "npm install && npm run dev"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - loja
+
+networks:
+  loja:
+    driver: bridge
