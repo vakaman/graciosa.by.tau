@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Account {
-  id           String   @id @default(uuid()) @map("id")
+  id           String   @id @default(uuid())
   email        String   @unique @map("email")
   passwordHash String?  @map("password_hash")
   googleId     String?  @map("google_id")
@@ -16,5 +16,102 @@ model Account {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  @@map("account")
+  @@map("accounts")
+}
+
+model Supplier {
+  id          Int      @id @default(autoincrement()) @map("id")
+  name        String   @map("name")
+  contactInfo String   @map("contact_info")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  purchaseOrders PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement()) @map("id")
+  name      String   @unique @map("name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement()) @map("id")
+  name        String   @map("name")
+  description String   @map("description")
+  categoryId  Int      @map("category_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  category Category @relation(fields: [categoryId], references: [id])
+  variants ProductVariant[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id        Int      @id @default(autoincrement()) @map("id")
+  productId Int      @map("product_id")
+  color     String   @map("color")
+  size      String   @map("size")
+  price     Decimal  @map("price")
+  sku       String   @unique @map("sku")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  product Product @relation(fields: [productId], references: [id])
+  stock   Stock?
+  purchaseOrderItems PurchaseOrderItem[]
+
+  @@map("product_variants")
+}
+
+model Stock {
+  id              Int      @id @default(autoincrement()) @map("id")
+  productVariantId Int     @unique @map("product_variant_id")
+  quantity        Int      @map("quantity")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+
+  @@map("stocks")
+}
+
+model PurchaseOrder {
+  id          Int      @id @default(autoincrement()) @map("id")
+  supplierId  Int      @map("supplier_id")
+  orderNumber String   @map("order_number")
+  totalValue  Decimal  @map("total_value")
+  orderDate   DateTime @map("order_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+  items    PurchaseOrderItem[]
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              Int      @id @default(autoincrement()) @map("id")
+  purchaseOrderId Int      @map("purchase_order_id")
+  productVariantId Int     @map("product_variant_id")
+  quantity        Int      @map("quantity")
+  unitPrice       Decimal  @map("unit_price")
+  subtotal        Decimal  @map("subtotal")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+
+  @@map("purchase_order_items")
 }

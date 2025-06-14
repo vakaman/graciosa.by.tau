@@ -66,7 +66,7 @@ erDiagram
     timestamp updated_at
   }
 
-  user {
+  accounts {
     int id PK
     string email
     string passwordHash
