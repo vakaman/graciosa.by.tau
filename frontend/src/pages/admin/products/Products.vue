@@ -48,15 +48,12 @@ import axios from 'axios'
 
 const isCreating = ref(false)
 
-// Estados do formulário
 const productName = ref('')
 const productDescription = ref('')
 const productCategoryId = ref<number | null>(null)
 const categories = ref<{ id: number; name: string }[]>([])
 
-// Simula chamada backend (depois conectamos no backend real)
 async function fetchCategories() {
-  // Substituir depois por: await axios.get('/api/categories')
   categories.value = [
     { id: 1, name: 'Vestidos' },
     { id: 2, name: 'Blusas' },
@@ -67,7 +64,6 @@ async function fetchCategories() {
 async function submitForm() {
   alert(`Produto "${productName.value}" cadastrado!`)
 
-  // Limpa o form
   productName.value = ''
   productDescription.value = ''
   productCategoryId.value = null

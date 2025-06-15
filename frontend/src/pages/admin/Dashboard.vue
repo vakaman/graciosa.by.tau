@@ -27,7 +27,6 @@
 </template>
 
 <script setup lang="ts">
-// (por enquanto vazio, depois vamos puxar dados reais)
 </script>
 
 <style scoped>

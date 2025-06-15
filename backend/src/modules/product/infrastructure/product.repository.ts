@@ -6,7 +6,6 @@ import { ProductFilters } from '@/modules/product/application/dtos/product-filte
 import { ProductVariant } from '@/modules/product/domain/entities/product-variant.entity';
 import { Money } from '@/modules/shared/value-objects/money';
 
-// IMPORTANDO OS TIPOS DO PRISMA
 import {
   Prisma,
   Product as PrismaProduct,

@@ -34,7 +34,6 @@ const router = createRouter({
   routes
 })
 
-// 🔐 Proteção global aqui:
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!isAuthenticated()) {

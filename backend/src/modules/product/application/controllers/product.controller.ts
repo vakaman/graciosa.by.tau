@@ -141,7 +141,6 @@ export class ProductController {
     }
   }
 
-  // Type guard centralizado
   private isError(error: unknown): error is Error {
     return typeof error === 'object' && error !== null && 'message' in error;
   }
