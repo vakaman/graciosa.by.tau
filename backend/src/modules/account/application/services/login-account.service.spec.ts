@@ -4,9 +4,15 @@ import { Account } from '@/modules/account/domain/entities/account.entity';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 
+type JwtPayload = { email: string };
+
 describe('LoginAccountService', () => {
   let loginService: LoginAccountService;
-  let mockRepo: jest.Mocked<AccountRepositoryInterface>;
+  let mockRepo: {
+    findByEmail: jest.Mock;
+    findById: jest.Mock;
+    save: jest.Mock;
+  };
 
   beforeEach(() => {
     mockRepo = {
@@ -15,33 +21,56 @@ describe('LoginAccountService', () => {
       save: jest.fn(),
     };
 
-    loginService = new LoginAccountService(mockRepo);
+    loginService = new LoginAccountService(
+      mockRepo as unknown as AccountRepositoryInterface,
+    );
   });
 
   it('should generate token with valid login', async () => {
     const hash = await bcrypt.hash('senhaSegura123', 10);
 
     mockRepo.findByEmail.mockResolvedValue(
-      new Account('1', 'maicol@graciosa.com', hash, 'Maicol', new Date(), new Date())
+      new Account(
+        '1',
+        'maicol@graciosa.com',
+        hash,
+        'Maicol',
+        new Date(),
+        new Date(),
+      ),
     );
 
-    const token = await loginService.execute('maicol@graciosa.com', 'senhaSegura123');
+    const token = await loginService.execute(
+      'maicol@graciosa.com',
+      'senhaSegura123',
+    );
 
     expect(token).toBeDefined();
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'chave-secreta-superforte');
-    expect((decoded as any).email).toBe('maicol@graciosa.com');
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || 'chave-secreta-superforte',
+    ) as JwtPayload;
+
+    expect(decoded.email).toBe('maicol@graciosa.com');
   });
 
   it('should throw error with invalid password', async () => {
     const hash = await bcrypt.hash('senhaCorreta', 10);
 
     mockRepo.findByEmail.mockResolvedValue(
-      new Account('1', 'maicol@graciosa.com', hash, 'Maicol', new Date(), new Date())
+      new Account(
+        '1',
+        'maicol@graciosa.com',
+        hash,
+        'Maicol',
+        new Date(),
+        new Date(),
+      ),
     );
 
     await expect(
-      loginService.execute('maicol@graciosa.com', 'senhaErrada')
+      loginService.execute('maicol@graciosa.com', 'senhaErrada'),
     ).rejects.toThrow();
   });
 
@@ -49,7 +78,7 @@ describe('LoginAccountService', () => {
     mockRepo.findByEmail.mockResolvedValue(null);
 
     await expect(
-      loginService.execute('naoexiste@graciosa.com', 'senhaSegura123')
+      loginService.execute('naoexiste@graciosa.com', 'senhaSegura123'),
     ).rejects.toThrow();
   });
 });

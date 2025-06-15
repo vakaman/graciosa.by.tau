@@ -9,6 +9,7 @@ import { DeleteProductService } from './application/services/delete-product.serv
 import { ListProductsService } from './application/services/list-products.service';
 import { CategoryRepository } from './category/infrastructure/category.repository';
 import { CategoryRepositoryInterface } from './category/domain/repositories/category.repository';
+import { ListPaginatedProductsService } from './application/services/list-paginated-products.service';
 
 @Module({
   controllers: [ProductController],
@@ -20,6 +21,7 @@ import { CategoryRepositoryInterface } from './category/domain/repositories/cate
     UpdateProductService,
     DeleteProductService,
     ListProductsService,
+    ListPaginatedProductsService,
   ],
 })
 export class ProductModule {}

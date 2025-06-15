@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { AccountRepositoryInterface } from '@/modules/account/domain/repositories/account.repository';
 import { Account } from '@/modules/account/domain/entities/account.entity';
+import { Account as PrismaAccount } from '@prisma/client';
 
 @Injectable()
 export class AccountRepository implements AccountRepositoryInterface {
@@ -37,14 +38,14 @@ export class AccountRepository implements AccountRepositoryInterface {
     });
   }
 
-  private mapToDomain(data: any): Account {
+  private mapToDomain(data: PrismaAccount): Account {
     return new Account(
       data.id,
       data.email,
-      data.passwordHash,
+      data.passwordHash ?? '',
       data.name,
       data.createdAt,
-      data.updatedAt
+      data.updatedAt,
     );
   }
 }

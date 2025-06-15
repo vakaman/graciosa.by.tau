@@ -12,9 +12,9 @@ import { LoginAccountService } from '@/modules/account/application/services/logi
     RegisterAccountService,
     LoginAccountService,
     PrismaService,
-    { 
-        provide: AccountRepositoryInterface, 
-        useClass: AccountRepository 
+    {
+      provide: AccountRepositoryInterface,
+      useClass: AccountRepository,
     },
   ],
 })

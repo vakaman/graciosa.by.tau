@@ -61,7 +61,7 @@ model ProductVariant {
   productId Int      @map("product_id")
   color     String   @map("color")
   size      String   @map("size")
-  price     Decimal  @map("price")
+  price     Int      @map("price")
   sku       String   @unique @map("sku")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

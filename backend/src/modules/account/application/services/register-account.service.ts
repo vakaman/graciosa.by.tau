@@ -9,18 +9,25 @@ import { EmailAlreadyExistsError } from '@/modules/account/domain/exceptions/ema
 export class RegisterAccountService {
   constructor(
     @Inject(AccountRepositoryInterface)
-    private readonly accountRepository: AccountRepositoryInterface
+    private readonly accountRepository: AccountRepositoryInterface,
   ) {}
 
   async execute(name: string, email: string, password: string) {
     const existing = await this.accountRepository.findByEmail(email);
-    if (existing) { 
+    if (existing) {
       throw new EmailAlreadyExistsError();
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const account = new Account(uuidv4(), email, hash, name, new Date(), new Date());
-    
+    const account = new Account(
+      uuidv4(),
+      email,
+      hash,
+      name,
+      new Date(),
+      new Date(),
+    );
+
     await this.accountRepository.save(account);
   }
 }

@@ -15,6 +15,13 @@ export class Account {
     name: string;
   }): Account {
     const now = new Date();
-    return new Account(params.id, params.email, params.passwordHash, params.name, now, now);
+    return new Account(
+      params.id,
+      params.email,
+      params.passwordHash,
+      params.name,
+      now,
+      now,
+    );
   }
 }

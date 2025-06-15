@@ -1,7 +1,13 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { ProductRepositoryInterface, ProductRepositoryInterface as ProductRepo } from '@/modules/product/domain/repositories/product.repository';
+import { Inject, Injectable } from '@nestjs/common';
+import {
+  ProductRepositoryInterface,
+  ProductRepositoryInterface as ProductRepo,
+} from '@/modules/product/domain/repositories/product.repository';
 import { Product } from '@/modules/product/domain/entities/product.entity';
-import { CategoryRepositoryInterface, CategoryRepositoryInterface as CategoryRepo } from '@/modules/product/category/domain/repositories/category.repository';
+import {
+  CategoryRepositoryInterface,
+  CategoryRepositoryInterface as CategoryRepo,
+} from '@/modules/product/category/domain/repositories/category.repository';
 import { ProductAlreadyExistsError } from '../../domain/exceptions/product-already-exists.error';
 import { CategoryNotFoundError } from '../../domain/exceptions/category-not-found.error';
 
@@ -15,16 +21,19 @@ export class RegisterProductService {
     private readonly categoryRepository: CategoryRepositoryInterface,
   ) {}
 
-  async execute(name: string, description: string, categoryId: number): Promise<void> {
-
+  async execute(
+    name: string,
+    description: string,
+    categoryId: number,
+  ): Promise<void> {
     const category = await this.categoryRepository.findById(categoryId);
     if (!category) {
-      throw new CategoryNotFoundError;
+      throw new CategoryNotFoundError();
     }
 
     const existing = await this.productRepository.findByName(name);
     if (existing) {
-      throw new ProductAlreadyExistsError;
+      throw new ProductAlreadyExistsError();
     }
 
     const now = new Date();

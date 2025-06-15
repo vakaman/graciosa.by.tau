@@ -1,12 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CategoryRepositoryInterface, CategoryRepositoryInterface as CategoryRepo } from '@/modules/product/category/domain/repositories/category.repository';
+import {
+  CategoryRepositoryInterface,
+  CategoryRepositoryInterface as CategoryRepo,
+} from '@/modules/product/category/domain/repositories/category.repository';
 import { Category } from '@/modules/product/category/domain/entities/category.entity';
 
 @Injectable()
 export class RegisterCategoryService {
   constructor(
     @Inject(CategoryRepo)
-    private readonly categoryRepository: CategoryRepositoryInterface
+    private readonly categoryRepository: CategoryRepositoryInterface,
   ) {}
 
   async execute(name: string) {

@@ -3,10 +3,7 @@ import { AccountModule } from '@/modules/account/account.module';
 import { ProductModule } from '@/modules/product/product.module';
 
 @Module({
-  imports: [
-    AccountModule,
-    ProductModule
-  ],
+  imports: [AccountModule, ProductModule],
   controllers: [],
   providers: [],
 })

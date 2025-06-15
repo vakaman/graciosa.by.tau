@@ -1,4 +1,11 @@
-import { Controller, Post, Body, UnauthorizedException, InternalServerErrorException, ConflictException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  InternalServerErrorException,
+  ConflictException,
+} from '@nestjs/common';
 import { RegisterAccountService } from '@/modules/account/application/services/register-account.service';
 import { LoginAccountService } from '@/modules/account/application/services/login-account.service';
 import { EmailAlreadyExistsError } from '@/modules/account/domain/exceptions/email-already-exists.error';
@@ -12,7 +19,9 @@ export class AccountController {
   ) {}
 
   @Post('register')
-  async register(@Body() body: { name: string; email: string; password: string }) {
+  async register(
+    @Body() body: { name: string; email: string; password: string },
+  ) {
     try {
       await this.registerService.execute(body.name, body.email, body.password);
       return { message: 'Conta criada com sucesso' };
