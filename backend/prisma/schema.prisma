@@ -15,7 +15,6 @@ model Account {
   name         String   @map("name")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
-
   @@map("accounts")
 }
 
@@ -23,65 +22,78 @@ model Supplier {
   id          Int      @id @default(autoincrement()) @map("id")
   name        String   @map("name")
   contactInfo String   @map("contact_info")
+  purchaseOrders PurchaseOrder[]
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-
-  purchaseOrders PurchaseOrder[]
-
   @@map("suppliers")
 }
 
 model Category {
   id        Int      @id @default(autoincrement()) @map("id")
   name      String   @unique @map("name")
+  products  Product[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  products Product[]
-
   @@map("categories")
 }
 
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+}
+
 model Product {
-  id          Int      @id @default(autoincrement()) @map("id")
-  name        String   @map("name")
-  description String   @map("description")
-  categoryId  Int      @map("category_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  category Category @relation(fields: [categoryId], references: [id])
-  variants ProductVariant[]
-
+  id             Int            @id @default(autoincrement()) @map("id")
+  name           String         @map("name")
+  description    String         @map("description")
+  categoryId     Int            @map("category_id")
+  tags           String[]       @map("tags")
+  seoTitle       String?        @map("seo_title")
+  seoDescription String?        @map("seo_description")
+  status         ProductStatus  @default(DRAFT) @map("status")
+  category       Category       @relation(fields: [categoryId], references: [id])
+  variants       ProductVariant[]
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
   @@map("products")
 }
 
 model ProductVariant {
   id        Int      @id @default(autoincrement()) @map("id")
   productId Int      @map("product_id")
-  color     String   @map("color")
-  size      String   @map("size")
-  price     Int      @map("price")
   sku       String   @unique @map("sku")
+  product   Product  @relation(fields: [productId], references: [id])
+  stock     Stock?
+  medias    ProductVariantMedia[]
+  purchaseOrderItems PurchaseOrderItem[]
+  attributes ProductVariantAttributeValue[]
+  inventoryBatches InventoryBatch[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  product Product @relation(fields: [productId], references: [id])
-  stock   Stock?
-  purchaseOrderItems PurchaseOrderItem[]
-
   @@map("product_variants")
+}
+
+model ProductVariantMedia {
+  id              Int      @id @default(autoincrement())
+  productVariantId Int     @map("product_variant_id")
+  url             String   @map("url")
+  altText         String?  @map("alt_text")
+  position        Int      @default(0)
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  @@map("product_variant_medias")
 }
 
 model Stock {
   id              Int      @id @default(autoincrement()) @map("id")
   productVariantId Int     @unique @map("product_variant_id")
   quantity        Int      @map("quantity")
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
-
-  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
-
   @@map("stocks")
 }
 
@@ -89,14 +101,12 @@ model PurchaseOrder {
   id          Int      @id @default(autoincrement()) @map("id")
   supplierId  Int      @map("supplier_id")
   orderNumber String   @map("order_number")
-  totalValue  Decimal  @map("total_value")
+  totalValue  Int  @map("total_value")
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+  items    PurchaseOrderItem[]
   orderDate   DateTime @map("order_date")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-
-  supplier Supplier @relation(fields: [supplierId], references: [id])
-  items    PurchaseOrderItem[]
-
   @@map("purchase_orders")
 }
 
@@ -105,13 +115,65 @@ model PurchaseOrderItem {
   purchaseOrderId Int      @map("purchase_order_id")
   productVariantId Int     @map("product_variant_id")
   quantity        Int      @map("quantity")
-  unitPrice       Decimal  @map("unit_price")
-  subtotal        Decimal  @map("subtotal")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-
+  unitPrice       Int  @map("unit_price")
+  subtotal        Int  @map("subtotal")
   purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
-
+  inventoryBatches InventoryBatch[]
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
   @@map("purchase_order_items")
+}
+
+model InventoryBatch {
+  id               Int      @id @default(autoincrement()) @map("id")
+  productVariantId Int      @map("product_variant_id")
+  purchaseOrderItemId Int?  @map("purchase_order_item_id")
+  quantity         Int      @map("quantity")
+  unitCost         Int  @map("unit_cost")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+  purchaseOrderItem PurchaseOrderItem? @relation(fields: [purchaseOrderItemId], references: [id])
+
+  @@map("inventory_batches")
+}
+
+enum AttributeType {
+  STRING
+  NUMBER
+  BOOLEAN
+  ENUM
+  DATE
+}
+
+model ProductAttribute {
+  id          Int          @id @default(autoincrement()) @map("id")
+  name        String       @map("name")
+  type        AttributeType @map("type")
+  unit        String?      @map("unit")
+  isRequired  Boolean      @default(false) @map("is_required")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  values      ProductVariantAttributeValue[]
+
+  @@unique([name, type])
+  @@map("product_attributes")
+}
+
+model ProductVariantAttributeValue {
+  id            Int      @id @default(autoincrement()) @map("id")
+  productVariantId Int   @map("product_variant_id")
+  attributeId   Int      @map("attribute_id")
+  stringValue   String?  @map("string_value")
+  numberValue   Float?   @map("number_value")
+  booleanValue  Boolean? @map("boolean_value")
+  dateValue     DateTime? @map("date_value")
+
+  attribute ProductAttribute @relation(fields: [attributeId], references: [id])
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+
+  @@unique([productVariantId, attributeId])
+  @@map("product_variant_attribute_values")
 }

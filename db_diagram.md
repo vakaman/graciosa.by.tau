@@ -31,8 +31,18 @@ erDiagram
     int product_id FK
     varchar color
     varchar size
-    decimal price
+    int price
     varchar sku
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  product_variant_medias {
+    int id PK
+    int product_variant_id FK
+    varchar url
+    varchar alt_text
+    int position
     timestamp created_at
     timestamp updated_at
   }
@@ -78,6 +88,8 @@ erDiagram
 
   products ||--o{ categories : "belongs to"
   product_variants ||--o{ products : "belongs to"
+  product_variant_medias ||--o{ product_variants : "belongs to"
+  
   stocks ||--o{ product_variants : "belongs to"
   purchase_orders ||--o{ suppliers : "belongs to"
   purchase_order_items ||--o{ purchase_orders : "belongs to"

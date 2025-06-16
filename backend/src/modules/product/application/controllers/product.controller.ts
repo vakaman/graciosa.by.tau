@@ -11,14 +11,15 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import { RegisterProductService } from '@/modules/product/application/services/register-product.service';
-import { UpdateProductService } from '@/modules/product/application/services/update-product.service';
-import { DeleteProductService } from '@/modules/product/application/services/delete-product.service';
-import { ListProductsService } from '@/modules/product/application/services/list-products.service';
+import { RegisterProductService } from '@/modules/product/application/services/product/register-product.service';
+import { UpdateProductService } from '@/modules/product/application/services/product/update-product.service';
+import { DeleteProductService } from '@/modules/product/application/services/product/delete-product.service';
+import { ListProductsService } from '@/modules/product/application/services/product/list-products.service';
 import { ProductAlreadyExistsError } from '@/modules/product/domain/exceptions/product-already-exists.error';
 import { CategoryNotFoundError } from '@/modules/product/domain/exceptions/category-not-found.error';
 import { ProductFilters } from '@/modules/product/application/dtos/product-filters.dto';
-import { ListPaginatedProductsService } from '@/modules/product/application/services/list-paginated-products.service';
+import { ListPaginatedProductsService } from '@/modules/product/application/services/product/list-paginated-products.service';
+import { ProductDetailsService } from '@/modules/product/application/services/product/product-details.service';
 
 @Controller('product')
 export class ProductController {
@@ -28,6 +29,7 @@ export class ProductController {
     private readonly deleteService: DeleteProductService,
     private readonly listService: ListProductsService,
     private readonly listPaginatedService: ListPaginatedProductsService,
+    private readonly productDetailsService: ProductDetailsService,
   ) {}
 
   @Post('/')
@@ -139,6 +141,41 @@ export class ProductController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get('/:id/details')
+  async getProductDetails(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('variationId') variationId?: string,
+  ) {
+    try {
+      const variationIdParsed = variationId
+        ? parseInt(variationId, 10)
+        : undefined;
+      const product = await this.productDetailsService.getProductDetail(
+        id,
+        variationIdParsed,
+      );
+      return product;
+    } catch (error: unknown) {
+      console.error('Error getting product details:', error);
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('/:productId/variant/:variantId')
+  async getVariantDetails(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Param('variantId', ParseIntPipe) variantId: number,
+  ) {
+    const result = await this.productDetailsService.getVariantDetails(
+      productId,
+      variantId,
+    );
+    return result;
   }
 
   private isError(error: unknown): error is Error {
